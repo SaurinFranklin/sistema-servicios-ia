@@ -226,3 +226,4 @@ __marimo__/
 ml/data/*.csv
 ml/models/*.pkl
 ml/models/*.pt
+!ml/data/prueba_manual.csv
