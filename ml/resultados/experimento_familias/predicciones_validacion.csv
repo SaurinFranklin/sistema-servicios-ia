@@ -1,0 +1,21 @@
+texto,categoria,origen,familia,pred_tfidf,pred_beto
+se ven lineas de colores en la pantalla,pantalla,cliente,pantalla/defecto_imagen,cabezal_tinta,pantalla
+tiene una mancha oscura que crece en la pantalla,pantalla,cliente,pantalla/defecto_imagen,disco_duro,fusor_laser
+se mojo con agua y ya no prende,placa_madre,cliente,placa_madre/liquidos,disco_duro,placa_madre
+hizo un chispazo y se apago todo,fuente_poder,cliente,fuente_poder/dano_electrico,software,placa_madre
+huele a plastico quemado cuando la prendo,fuente_poder,cliente,fuente_poder/dano_electrico,bateria,placa_madre
+no me abre el office ni el navegador,software,cliente,software/aplicaciones,disco_duro,teclado_touchpad
+se apaga sola cuando juego o abro programas pesados,sobrecalentamiento,cliente,sobrecalentamiento/apagado_con_carga,bateria,bateria
+varias teclas no responden,teclado_touchpad,cliente,teclado_touchpad/teclas,disco_duro,software
+algunas letras escriben dos veces,teclado_touchpad,cliente,teclado_touchpad/teclas,disco_duro,cabezal_tinta
+no agarra el papel de la bandeja,atasco_papel,cliente,atasco_papel/alimentacion,atasco_papel,atasco_papel
+limpie los cabezales varias veces y sigue igual,cabezal_tinta,cliente,cabezal_tinta/limpieza_sin_mejora,disco_duro,cabezal_tinta
+las hojas salen muy calientes y arrugadas,fusor_laser,cliente,fusor_laser/temperatura_papel,cabezal_tinta,cabezal_tinta
+el rodillo gira pero las hojas siguen en la bandeja sin entrar,atasco_papel,cliente,atasco_papel/alimentacion,cabezal_tinta,atasco_papel
+el sistema avisa que debo reemplazar la batería por desgaste,bateria,cliente,bateria/desgaste,disco_duro,bateria
+el disco aparece y desaparece de la lista de unidades del equipo,disco_duro,cliente,disco_duro/desconexion,disco_duro,bateria
+solo se ilumina una mitad de la pantalla del portátil,pantalla,cliente,pantalla/defecto_imagen,disco_duro,pantalla
+en un monitor externo la imagen sale bien pero en el panel de la laptop se ve distorsionada,pantalla,cliente,pantalla/defecto_imagen,bateria,pantalla
+un programa dejó de abrir después de actualizarlo y muestra un error de instalación,software,cliente,software/aplicaciones,fusor_laser,disco_duro
+la barra espaciadora queda presionada y escribe espacios continuamente,teclado_touchpad,cliente,teclado_touchpad/teclas,bateria,fusor_laser
+el teclado integrado falla aunque uno conectado por usb funciona correctamente,teclado_touchpad,cliente,teclado_touchpad/teclas,bateria,bateria

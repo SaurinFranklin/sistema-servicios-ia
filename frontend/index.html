@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Órdenes | Servicio técnico</title>
+  <link rel="stylesheet" href="./estilos.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="cabecera">
+    <strong>Servicio técnico</strong>
+    <span>Gestión del taller</span>
+  </header>
+
+  <main>
+    <div class="encabezado">
+      <div>
+        <h1>Órdenes de servicio</h1>
+        <p>Consulta las ordenes y revisa sus avances.</p>
+      </div>
+      <button id="actualizar" type="button">Actualizar lista</button>
+    </div>
+
+    <div class="altas">
+        <details class="panel">
+        <summary>Registrar cliente</summary>
+
+        <form id="alta-cliente">
+            <fieldset>
+                <legend class="solo-lectores">Datos del cliente</legend>
+
+                <label class="campo">
+                    Nombre completo
+                    <input name="nombre" type="text" maxlength="100" required>
+                </label>
+
+                <label class="campo">
+                    DNI
+                    <input
+                        name="dni"
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]{8}"
+                        maxlength="8"
+                        required
+                    >
+                </label>
+
+                <label class="campo">
+                    Teléfono
+                    <input name="telefono" type="tel" maxlength="20" required>
+                </label>
+
+                <label class="campo">
+                    Correo electrónico (opcional)
+                    <input name="email" type="email" maxlength="100">
+                </label>
+
+                <button type="submit">Guardar cliente</button>
+            </fieldset>
+
+            <p role="status"></p>
+        </form>
+    </details>
+
+    <details class="panel">
+        <summary>Registrar equipo</summary>
+
+        <form id="alta-equipo">
+            <fieldset>
+                <legend class="solo-lectores">Datos del equipo</legend>
+
+                <label class="campo">
+                    DNI del propietario
+                    <input
+                        name="dni"
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]{8}"
+                        maxlength="8"
+                        required
+                    >
+                </label>
+
+                <label class="campo">
+                    Tipo de equipo
+                    <select name="tipo" required>
+                        <option value="">Selecciona un tipo</option>
+                        <option value="laptop">Laptop</option>
+                        <option value="pc">PC</option>
+                        <option value="impresora">Impresora</option>
+                    </select>
+                </label>
+
+                <label class="campo">
+                    Marca
+                    <input name="marca" type="text" maxlength="50" required>
+                </label>
+
+                <label class="campo">
+                    Modelo
+                    <input name="modelo" type="text" maxlength="80" required>
+                </label>
+
+                <label class="campo">
+                    Número de serie (opcional)
+                    <input name="serie" type="text" maxlength="80">
+                </label>
+
+                <button type="submit">Guardar equipo</button>
+            </fieldset>
+
+            <p role="status"></p>
+        </form>
+    </details>
+</div>  
+
+    <section class="panel nueva-orden" aria-labelledby="titulo-nueva">
+  <h2 id="titulo-nueva">Nueva orden de servicio</h2>
+
+  <form id="formulario-orden">
+    <fieldset id="campos-orden">
+      <legend class="solo-lectores">Datos de la nueva orden</legend>
+
+      <div class="busqueda-orden">
+        <div class="campo">
+            <label for="dni-cliente">DNI del cliente</label>
+            <input
+                id="dni-cliente"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]{8}"
+                minlength="8"
+                maxlength="8"
+                required
+                placeholder="8 dígitos"
+            >
+            </div>
+
+            <button id="buscar-cliente" type="button">
+                Buscar cliente
+            </button>
+        </div>
+
+        <p id="resultado-cliente" role="status"></p>
+
+      <div class="campos-fila">
+        <div class="campo">
+            <label for="equipo-id">Equipo del cliente</label>
+
+            <select
+                id="equipo-id"
+                name="equipo_id"
+                required
+                aria-describedby="ayuda-equipo"
+            >
+                <option value="">Primero busca un cliente</option>
+            </select>
+
+            <small id="ayuda-equipo">
+                Selecciona el equipo que ingresará al servicio.
+            </small>
+        </div>
+
+        <div class="campo">
+          <label for="prioridad-orden">Prioridad</label>
+          <select id="prioridad-orden" name="prioridad">
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="descripcion-orden">Falla descrita por el cliente</label>
+        <textarea
+          id="descripcion-orden"
+          name="descripcion_falla"
+          rows="3"
+          minlength="1"
+          maxlength="2000"
+          required
+        ></textarea>
+      </div>
+
+      <button id="guardar-orden" type="submit">Crear orden</button>
+    </fieldset>
+
+    <p id="mensaje-creacion" role="status"></p>
+        </form>
+    </section>
+
+    <div class="distribucion">
+      <section class="panel" aria-labelledby="titulo-lista">
+        <h2 id="titulo-lista">Órdenes registradas</h2>
+
+        <form id="buscar-orden" class="busqueda-orden">
+            <div class="campo">
+            <label for="numero-orden">Buscar por número de orden</label>
+            <input
+                id="numero-orden"
+                type="number"
+                min="1"
+                step="1"
+                required
+                placeholder="Ejemplo: 4006"
+            >
+        </div>
+        <button id="boton-buscar" type="submit">Abrir orden</button>
+    </form>
+
+    <div class="campo">
+      <label for="filtro-estado">Filtrar por estado</label>
+
+      <select id="filtro-estado">
+        <option value="">Todos los estados</option>
+        <option value="recibido">Recibido</option>
+        <option value="diagnostico">Diagnóstico</option>
+        <option value="en_reparacion">En reparación</option>
+        <option value="listo">Listo</option>
+        <option value="entregado">Entregado</option>
+      </select>
+    </div>
+
+    <nav class="paginacion" aria-label="Páginas de órdenes">
+        <button id="pagina-anterior" type="button" disabled>Anterior</button>
+        <span id="pagina-actual">Página 1</span>
+        <button id="pagina-siguiente" type="button" disabled>Siguiente</button>
+    </nav>
+        <p id="mensaje-lista" role="status"></p>
+
+        <div class="tabla-contenedor">
+          <table>
+            <caption class="solo-lectores">
+              Órdenes registradas, desde la más reciente
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Orden</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="ordenes"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel ficha" aria-labelledby="titulo-detalle">
+        <h2 id="titulo-detalle" tabindex="-1">Ficha del servicio</h2>
+        <p id="mensaje-detalle" role="status">
+          Selecciona “Ver detalle” en una orden.
+        </p>
+        <div id="detalle"></div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

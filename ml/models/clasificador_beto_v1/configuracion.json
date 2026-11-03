@@ -1,0 +1,27 @@
+{
+  "modelo_base": "dccuchile/bert-base-spanish-wwm-cased",
+  "max_length": 128,
+  "pooling": "promedio_tokens_sin_padding",
+  "incluye_tokens_especiales": true,
+  "categorias": [
+    "atasco_papel",
+    "bateria",
+    "cabezal_tinta",
+    "disco_duro",
+    "fuente_poder",
+    "fusor_laser",
+    "pantalla",
+    "placa_madre",
+    "sobrecalentamiento",
+    "software",
+    "teclado_touchpad"
+  ],
+  "uso": "prototipo_con_datos_sinteticos",
+  "versiones": {
+    "torch": "2.15.0+cpu",
+    "transformers": "5.22.0",
+    "scikit-learn": "1.9.1",
+    "numpy": "2.5.4",
+    "joblib": "1.6.0"
+  }
+}

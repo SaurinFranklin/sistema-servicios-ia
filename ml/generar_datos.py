@@ -14,19 +14,19 @@ from pathlib import Path
 from faker import Faker
 
 # --- Rutas: así el script funciona sin importar desde dónde lo ejecutes ---
-RAIZ = Path(__file__).resolve().parents[2]          # carpeta sistema-servicios-ia
-sys.path.append(str(RAIZ / "backend"))               # para importar database y models
-os.chdir(RAIZ / "backend")                           # para que servicios.db quede en backend
+RAIZ = Path(__file__).resolve().parents[2]
+sys.path.append(str(RAIZ / "backend")) 
+os.chdir(RAIZ / "backend")
 
 from database import Base, engine, SessionLocal
 from models import Cliente, Equipo, Tecnico, Orden, HistorialEstado, Repuesto, OrdenRepuesto
 import catalogo
 
 # --- Parámetros que puedes cambiar ---
-SEMILLA = 42            # misma semilla = mismos datos cada vez (reproducible)
+SEMILLA = 42           
 N_CLIENTES = 1500
 N_ORDENES = 4000
-DIAS_HISTORIAL = 540    # las órdenes se reparten en los últimos 18 meses
+DIAS_HISTORIAL = 540 
 
 # Qué tan frecuente es cada falla (más peso = más común)
 PESO_FALLA = {
@@ -80,7 +80,7 @@ def agregar_error(texto):
 def generar_descripcion(info_falla):
     """Arma lo que escribiría el cliente: frase base + variaciones + errores."""
     if random.random() < 0.05:
-        texto = random.choice(FRASES_VAGAS)          # a veces el cliente no sabe explicar
+        texto = random.choice(FRASES_VAGAS)
     else:
         texto = random.choice(info_falla["frases"])
     if random.random() < 0.25:
@@ -111,7 +111,7 @@ def elegir_repuestos(nombre_falla, info_falla):
     if not lista:
         return []
     if nombre_falla == "disco_duro":
-        return [random.choice(lista)]                # SSD o HDD, no ambos
+        return [random.choice(lista)]
     return [lista[0]] + [r for r in lista[1:] if random.random() < 0.5]
 
 
@@ -161,12 +161,12 @@ def main():
         s.add_all(tecnicos)
         s.add_all(repuestos.values())
         s.add_all(clientes)
-        s.flush()   # envía a la BD para que ya tengan id
+        s.flush()
 
         # 3) Órdenes
         nombres_falla = list(PESO_FALLA)
         pesos = [PESO_FALLA[f] for f in nombres_falla]
-        pares = []  # (objeto orden, fila para el CSV)
+        pares = []
 
         for _ in range(N_ORDENES):
             nombre_falla = random.choices(nombres_falla, weights=pesos)[0]
@@ -192,12 +192,12 @@ def main():
             tiempo = random.uniform(dmin, dmax)
             tiempo *= factor_experiencia(tecnico.anios_experiencia)
             if tecnico.especialidad != especialidad:
-                tiempo *= 1.25                       # técnico fuera de su especialidad
+                tiempo *= 1.25
             if marca == "Apple":
-                tiempo *= 1.20                       # equipos más difíciles de abrir
-            tiempo *= random.gauss(1.0, 0.12)        # ruido normal
+                tiempo *= 1.20
+            tiempo *= random.gauss(1.0, 0.12)
             if random.random() < 0.06:
-                tiempo *= random.uniform(1.4, 2.2)   # caso atípico (espera de repuesto)
+                tiempo *= random.uniform(1.4, 2.2)
             tiempo = round(max(0.5, tiempo), 1)
 
             # --- Regla de COSTO ---
@@ -206,7 +206,7 @@ def main():
             costo *= factor_marca
             costo *= random.gauss(1.0, 0.08)
             if random.random() < 0.04:
-                costo *= random.uniform(1.2, 1.6)    # atípico (trabajo extra)
+                costo *= random.uniform(1.2, 1.6)
             costo = round(max(10, costo), 2)
 
             # Fechas y estado
@@ -237,7 +237,7 @@ def main():
             s.add(orden)
             pares.append((orden, equipo, tecnico, usados))
 
-        s.flush()  # ahora todas las órdenes tienen id
+        s.flush()
 
         # 4) Exportar CSV (para entrenar los modelos)
         ruta_csv = RAIZ / "ml" / "data" / "ordenes.csv"

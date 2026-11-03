@@ -1,16 +1,30 @@
+from pathlib import Path
+
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# Ruta de la base de datos: un archivo llamado servicios.db
-DATABASE_URL = "sqlite:///./servicios.db"
 
-# El "engine" es el motor que se comunica con la base de datos
-engine = create_engine(DATABASE_URL, echo=False)
+RUTA_BD = Path(__file__).resolve().parent / "servicios.db"
 
-# Cada vez que necesitemos hablar con la BD, abrimos una "sesión"
+DATABASE_URL = URL.create(
+    "sqlite",
+    database=str(RUTA_BD),
+)
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    echo=False,
+)
+
 SessionLocal = sessionmaker(bind=engine)
 
 
-# Todas nuestras tablas heredarán de esta clase base
 class Base(DeclarativeBase):
     pass
+
+
+def obtener_db():
+    with SessionLocal() as sesion:
+        yield sesion

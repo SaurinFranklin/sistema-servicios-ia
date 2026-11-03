@@ -108,3 +108,24 @@ class OrdenRepuesto(Base):
 
     orden: Mapped["Orden"] = relationship(back_populates="repuestos_usados")
     repuesto: Mapped["Repuesto"] = relationship(back_populates="usos")
+
+class ObservacionTecnica(Base):
+    __tablename__ = "observaciones_tecnicas"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    orden_id: Mapped[int] = mapped_column(
+        ForeignKey("ordenes.id"),
+        index=True,
+    )
+
+    tecnico_id: Mapped[int] = mapped_column(
+        ForeignKey("tecnicos.id"),
+    )
+
+    texto: Mapped[str] = mapped_column(Text)
+
+    fecha: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.now,
+    )

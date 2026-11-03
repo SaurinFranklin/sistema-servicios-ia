@@ -1,0 +1,379 @@
+:root {
+  --fondo: #edf2f6;
+  --papel: #ffffff;
+  --texto: #203044;
+  --azul: #234f78;
+  --borde: #cbd5df;
+  --suave: #e4eff8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  line-height: 1.5;
+}
+
+.cabecera {
+  background: var(--azul);
+  color: white;
+  padding: 18px 5%;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+main { max-width: 1440px; margin: auto; padding: 32px 24px; }
+h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 0; }
+h2 { font-size: 1.2rem; margin: 0 0 16px; }
+h3 { font-size: 1rem; margin: 24px 0 10px; }
+p { margin: 8px 0 16px; }
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.distribucion {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.panel {
+  background: var(--papel);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 0;
+}
+
+.ficha { border-top: 5px solid var(--azul); }
+
+button {
+  font: inherit;
+  font-weight: 600;
+  background: var(--azul);
+  color: white;
+  border: 0;
+  border-radius: 5px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+button:hover { background: #173b5c; }
+button:disabled { opacity: 0.6; cursor: wait; }
+:focus-visible { outline: 3px solid #bb5800; outline-offset: 4px; }
+
+.tabla-contenedor { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  text-align: left;
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--borde);
+  vertical-align: top;
+}
+th { background: var(--suave); font-size: 0.9rem; }
+td { overflow-wrap: anywhere; }
+td:nth-child(2) { min-width: 180px; }
+td button { white-space: nowrap; }
+tr.seleccionada { background: #f0f6fb; }
+
+.estado {
+  display: inline-block;
+  background: var(--suave);
+  color: var(--azul);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+dl { margin: 0; }
+dt { font-size: 0.85rem; color: #526275; margin-top: 12px; }
+dd { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 12px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.error { color: #a12323; }
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 1000px) {
+  .distribucion { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  main { padding: 20px 12px; }
+  .panel { padding: 16px; }
+  .encabezado { align-items: flex-start; flex-direction: column; }
+  .cabecera { flex-direction: column; gap: 2px; }
+}
+
+.nueva-orden {
+  margin-bottom: 24px;
+}
+
+#campos-orden {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.campos-fila {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.campo label {
+  font-weight: 600;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+  background: white;
+  color: var(--texto);
+  font: inherit;
+}
+
+.campo textarea {
+  resize: vertical;
+}
+
+.campo small {
+  color: #526275;
+}
+
+#mensaje-creacion:empty {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .campos-fila {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+td:first-child {
+  white-space: nowrap;
+}
+
+.sugerencias-ia {
+  margin-top: 24px;
+  padding: 18px;
+  background: var(--suave);
+  border-left: 4px solid var(--azul);
+  border-radius: 5px;
+}
+
+.sugerencias-ia h3 {
+  margin-top: 0;
+}
+
+.lista-sugerencias {
+  margin-bottom: 0;
+}
+
+.lista-sugerencias li {
+  padding: 8px 0;
+}
+
+.lista-sugerencias span {
+  display: block;
+  color: #526275;
+  font-size: 0.9rem;
+}
+
+.formulario-diagnostico {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--borde);
+}
+
+.formulario-diagnostico h3 {
+  margin-top: 0;
+}
+
+.formulario-diagnostico fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.formulario-diagnostico fieldset:disabled {
+  opacity: 0.65;
+}
+
+.formulario-diagnostico select {
+  min-width: 0;
+}
+
+.formulario-observacion {
+  margin: 16px 0 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--borde);
+}
+
+.formulario-observacion textarea {
+  min-width: 0;
+}
+
+.formulario-observacion textarea:disabled {
+  opacity: 0.65;
+}
+
+.formulario-observacion p:empty {
+  margin: 0;
+}
+
+.formulario-estimacion {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+}
+
+.formulario-estimacion input {
+  max-width: 180px;
+}
+
+.formulario-estimacion p:empty {
+  margin: 0;
+}
+
+.cambio-estado {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--borde);
+}
+
+.cambio-estado h3 {
+  margin-top: 0;
+}
+
+.cambio-estado p:empty {
+  margin: 0;
+}
+
+.formulario-costo,
+.comparacion-servicio {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--borde);
+}
+
+.formulario-costo input {
+  max-width: 200px;
+}
+
+.comparacion-servicio h3 {
+  margin-top: 0;
+}
+
+.formulario-costo p:empty,
+.comparacion-servicio p:empty {
+  margin: 0;
+}
+
+.busqueda-orden {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.busqueda-orden .campo {
+  flex: 1;
+  min-width: 180px;
+  margin-bottom: 0;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+#pagina-actual {
+  font-weight: 600;
+}
+
+.altas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.altas summary {
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.altas form {
+  margin-top: 20px;
+}
+
+.altas fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.altas fieldset:disabled {
+  opacity: 0.65;
+}
+
+.altas label.campo {
+  font-weight: 600;
+}
+
+.altas input,
+.altas select {
+  font-weight: normal;
+  min-width: 0;
+}
+
+.altas p:empty {
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .altas {
+    grid-template-columns: 1fr;
+  }
+}
