@@ -377,3 +377,33 @@ td:first-child {
     grid-template-columns: 1fr;
   }
 }
+
+.historial-estimaciones {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--borde);
+}
+
+.historial-estimaciones h3 {
+  margin-top: 0;
+}
+
+.lista-estimaciones > li {
+  padding: 12px 0 18px;
+  border-bottom: 1px solid var(--borde);
+  white-space: normal;
+}
+
+.lista-estimaciones details {
+  margin-top: 14px;
+}
+
+.lista-estimaciones summary {
+  cursor: pointer;
+  color: var(--azul);
+  font-weight: 600;
+}
+
+.lista-estimaciones dd {
+  overflow-wrap: anywhere;
+}

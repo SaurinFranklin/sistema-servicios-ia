@@ -261,6 +261,8 @@ class PruebasValidaciones(unittest.TestCase):
         resultado_simulado = {
             "tiempo_estimado_dias": 2.5,
             "costo_estimado": 200.0,
+            "modelo_tiempo_sha256": "a" * 64,
+            "modelo_costo_sha256": "b" * 64,
         }
 
         with patch(
@@ -420,6 +422,8 @@ class PruebasValidaciones(unittest.TestCase):
             return_value={
                 "tiempo_estimado_dias": 1.5,
                 "costo_estimado": 150.0,
+                "modelo_tiempo_sha256": "c" * 64,
+                "modelo_costo_sha256": "d" * 64,
             },
         ) as estimador:
             self.peticion(
@@ -613,6 +617,86 @@ class PruebasValidaciones(unittest.TestCase):
             respuesta["costo_soles"],
             {"estimado": 200.0, "real": 0.0, "diferencia": -200.0},
         )
+    def test_historial_conserva_estimaciones_anteriores(self):
+        self.preparar_estimacion()
+
+        primero = self.peticion(
+            "GET", f"{self.ruta}/estimaciones", 200
+        )
+
+        self.assertEqual(len(primero), 1)
+        self.assertEqual(primero[0]["orden_id"], self.orden["id"])
+        self.assertEqual(primero[0]["tecnico_id"], self.tecnico_id)
+        self.assertEqual(
+            primero[0]["datos_entrada"],
+            {
+                "tipo_equipo": "laptop",
+                "marca": "Lenovo",
+                "categoria_falla": "teclado_touchpad",
+                "tecnico": "Técnico de prueba",
+                "anios_experiencia": 5,
+                "num_repuestos": 1,
+                "prioridad": "media",
+            },
+        )
+        self.assertEqual(primero[0]["tiempo_estimado_dias"], 2.5)
+        self.assertEqual(primero[0]["costo_estimado"], 200.0)
+        self.assertEqual(primero[0]["modelo_tiempo_sha256"], "a" * 64)
+        self.assertEqual(primero[0]["modelo_costo_sha256"], "b" * 64)
+
+        self.peticion(
+            "PATCH",
+            f"{self.ruta}/diagnostico",
+            200,
+            json={
+                "tecnico_id": self.tecnico_id,
+                "categoria_falla": "software",
+            },
+        )
+
+        # La estimación vigente se invalida, pero el historial se conserva.
+        self.assertIsNone(self.detalle()["orden"]["costo_estimado"])
+        self.assertIsNone(self.detalle()["orden"]["tiempo_estimado_dias"])
+        self.assertEqual(
+            self.peticion("GET", f"{self.ruta}/estimaciones", 200),
+            primero,
+        )
+
+        with patch(
+            "ordenes.estimar_servicio",
+            return_value={
+                "tiempo_estimado_dias": 1.5,
+                "costo_estimado": 150.0,
+                "modelo_tiempo_sha256": "c" * 64,
+                "modelo_costo_sha256": "d" * 64,
+            },
+        ):
+            self.peticion(
+                "POST",
+                f"{self.ruta}/estimacion",
+                200,
+                json={"num_repuestos": 0},
+            )
+
+        historial = self.peticion(
+            "GET", f"{self.ruta}/estimaciones", 200
+        )
+
+        self.assertEqual(len(historial), 2)
+        self.assertEqual(historial[0], primero[0])
+        self.assertNotEqual(historial[0]["id"], historial[1]["id"])
+
+        segundo = historial[1]
+        self.assertEqual(segundo["datos_entrada"]["categoria_falla"], "software")
+        self.assertEqual(segundo["datos_entrada"]["num_repuestos"], 0)
+        self.assertEqual(segundo["modelo_tiempo_sha256"], "c" * 64)
+        self.assertEqual(segundo["modelo_costo_sha256"], "d" * 64)
+        self.assertEqual(segundo["tiempo_estimado_dias"], 1.5)
+        self.assertEqual(segundo["costo_estimado"], 150.0)
+
+        vigente = self.detalle()["orden"]
+        self.assertEqual(vigente["tiempo_estimado_dias"], 1.5)
+        self.assertEqual(vigente["costo_estimado"], 150.0)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

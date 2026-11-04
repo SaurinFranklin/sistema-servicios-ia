@@ -1,25 +1,33 @@
 from functools import lru_cache
 from pathlib import Path
+from hashlib import sha256
+from io import BytesIO
 
 import joblib
 import numpy as np
 import pandas as pd
 
-
 RAIZ = Path(__file__).resolve().parents[1]
 CARPETA_MODELOS = RAIZ / "ml/models"
 
 
+def cargar_con_huella(ruta):
+    contenido = ruta.read_bytes()
+    modelo = joblib.load(BytesIO(contenido))
+    huella = sha256(contenido).hexdigest()
+    return modelo, huella
+
+
 @lru_cache(maxsize=1)
 def cargar_estimadores():
-    modelo_tiempo = joblib.load(
+    modelo_tiempo, huella_tiempo = cargar_con_huella(
         CARPETA_MODELOS / "modelo_tiempo.pkl"
     )
-    modelo_costo = joblib.load(
+    modelo_costo, huella_costo = cargar_con_huella(
         CARPETA_MODELOS / "modelo_costo.pkl"
     )
 
-    return modelo_tiempo, modelo_costo
+    return modelo_tiempo, modelo_costo, huella_tiempo, huella_costo
 
 
 def estimar_servicio(
@@ -42,7 +50,12 @@ def estimar_servicio(
         "prioridad": prioridad,
     }])
 
-    modelo_tiempo, modelo_costo = cargar_estimadores()
+    (
+        modelo_tiempo,
+        modelo_costo,
+        huella_tiempo,
+        huella_costo,
+    ) = cargar_estimadores()
 
     tiempo_log = modelo_tiempo.predict(entrada)[0]
     tiempo_dias = float(np.exp(tiempo_log))
@@ -59,6 +72,8 @@ def estimar_servicio(
     return {
         "tiempo_estimado_dias": round(tiempo_dias, 2),
         "costo_estimado": round(costo, 2),
+        "modelo_tiempo_sha256": huella_tiempo,
+        "modelo_costo_sha256": huella_costo,
     }
 
 

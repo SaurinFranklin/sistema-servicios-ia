@@ -50,6 +50,8 @@ sintéticos. Sus resultados no equivalen a una validación en un taller real.
 - Cálculo del tiempo real transcurrido.
 - Registro del importe final cobrado.
 - Comparación entre valores estimados y reales.
+- Historial de estimaciones con fecha, datos de entrada y huellas SHA-256
+  de los modelos utilizados.
 
 ## Organización
 
@@ -151,7 +153,8 @@ Los botones de avance gestionan las etapas posteriores.
 - Descripciones y observaciones con contenido.
 - Equipos vinculados a clientes y órdenes vinculadas a equipos existentes.
 - Diagnóstico editable en Recibido o Diagnóstico.
-- Cambio de técnico o categoría invalida las estimaciones anteriores.
+- Cambiar técnico o categoría borra la estimación vigente de la orden,
+  pero conserva los cálculos anteriores en el historial.
 - Estimación disponible únicamente en Diagnóstico.
 - Observaciones disponibles en Diagnóstico, En reparación y Listo.
 - Costo real registrable en Listo o Entregado, con valor no negativo.
@@ -241,6 +244,7 @@ La suite contiene 18 pruebas que verifican:
 - Conservación del diagnóstico al consultar sugerencias.
 - Respuesta y validaciones del endpoint de clasificación.
 - Comparaciones con valores pendientes, positivos, negativos y cero.
+- Conservación del historial al cambiar el diagnóstico y recalcular.
 
 Cada prueba crea una base SQLite nueva en memoria.
 Las respuestas de clasificación y estimación se simulan mediante mocks.
@@ -316,6 +320,7 @@ evaluación del modelo en una reparación real.
 - Falta validar una instalación limpia de la aplicación completa.
 - Las estimaciones no guardan todavía la versión del modelo ni una
   copia completa de sus entradas.
-- No se han validado carga concurrente ni uso productivo.
+- Las huellas SHA-256 identifican los archivos de modelos utilizados,
+  pero todavía falta archivar sus versiones para reproducir cálculos antiguos.
 - Se requiere ampliar y evaluar los datos con casos independientes
   revisados por técnicos.

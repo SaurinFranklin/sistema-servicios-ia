@@ -154,6 +154,7 @@ async function verDetalle(id) {
     agregarFormularioEstimacion(orden, turno);
     agregarFormularioCostoReal(orden, turno);
     agregarComparacion(orden, turno);
+    agregarHistorialEstimaciones(orden, turno);
 
     detalle.append(elemento("h3", "Observaciones técnicas"));
     agregarFormularioObservacion(orden, turno);
@@ -1575,3 +1576,136 @@ filtroEstado.addEventListener("change", () => {
 
   cargarOrdenes(0);
 });
+
+function agregarHistorialEstimaciones(orden, turnoDetalle) {
+  const seccion = elemento("section");
+  seccion.className = "historial-estimaciones";
+
+  const titulo = elemento("h3", "Historial de estimaciones");
+
+  const explicacion = elemento(
+    "p",
+    "Cada registro conserva los datos utilizados en ese cálculo. " +
+    "La estimación vigente se muestra en “Estimaciones y resultados”."
+  );
+
+  const mensaje = elemento("p");
+  mensaje.setAttribute("role", "status");
+
+  const lista = elemento("ol");
+  lista.className = "lista-estimaciones";
+
+  const boton = elemento("button", "Cargar más");
+  boton.type = "button";
+  boton.hidden = true;
+
+  seccion.append(titulo, explicacion, mensaje, lista, boton);
+  detalle.append(seccion);
+
+  let desplazamiento = 0;
+  let cargando = false;
+
+  function crearRegistro(registro) {
+    const item = elemento("li");
+    const entrada = registro.datos_entrada;
+
+    item.append(
+      elemento("strong", `Cálculo del ${fecha(registro.fecha)}`),
+      elemento(
+        "p",
+        `${dias(registro.tiempo_estimado_dias)} · ` +
+        costo(registro.costo_estimado)
+      )
+    );
+
+    const resumen = elemento("dl");
+
+    for (const [nombre, valor] of [
+      ["Categoría utilizada", entrada.categoria_falla?.replaceAll("_", " ")],
+      ["Técnico", entrada.tecnico],
+      ["Tipos de repuesto previstos", entrada.num_repuestos],
+    ]) {
+      resumen.append(
+        elemento("dt", nombre),
+        elemento("dd", valor ?? "Sin registrar")
+      );
+    }
+
+    item.append(resumen);
+
+    const ampliacion = elemento("details");
+    ampliacion.append(elemento("summary", "Ver datos completos del cálculo"));
+
+    const datos = elemento("dl");
+
+    for (const [nombre, valor] of [
+      ["Identificador del cálculo", registro.id],
+      ["Tipo de equipo", entrada.tipo_equipo],
+      ["Marca", entrada.marca],
+      ["Experiencia del técnico (años)", entrada.anios_experiencia],
+      ["Prioridad", entrada.prioridad],
+      ["Huella del modelo de tiempo", registro.modelo_tiempo_sha256],
+      ["Huella del modelo de costo", registro.modelo_costo_sha256],
+    ]) {
+      datos.append(
+        elemento("dt", nombre),
+        elemento("dd", valor ?? "Sin registrar")
+      );
+    }
+
+    ampliacion.append(datos);
+    item.append(ampliacion);
+
+    return item;
+  }
+
+  async function cargar() {
+    if (cargando || turnoDetalle !== solicitudDetalle) return;
+
+    cargando = true;
+    boton.disabled = true;
+    mostrarMensaje(mensaje, "Cargando historial…");
+
+    try {
+      const registros = await consultar(
+        `/ordenes/${orden.id}/estimaciones` +
+        `?limite=21&desplazamiento=${desplazamiento}`
+      );
+
+      if (turnoDetalle !== solicitudDetalle) return;
+
+      const pagina = registros.slice(0, 20);
+
+      for (const registro of pagina) {
+        lista.append(crearRegistro(registro));
+      }
+
+      desplazamiento += pagina.length;
+      boton.hidden = registros.length <= 20;
+      boton.textContent = "Cargar más";
+
+      let texto = `${desplazamiento} cálculo(s) mostrados, del más antiguo al más reciente.`;
+
+      if (desplazamiento === 0) {
+        texto = orden.tiempo_estimado_dias != null ||
+                orden.costo_estimado != null
+          ? "Esta orden tiene una estimación sin registro histórico."
+          : "Todavía no hay estimaciones registradas.";
+      }
+
+      mostrarMensaje(mensaje, texto);
+    } catch (error) {
+      if (turnoDetalle !== solicitudDetalle) return;
+
+      mostrarMensaje(mensaje, error.message, true);
+      boton.hidden = false;
+      boton.textContent = "Reintentar carga";
+    } finally {
+      cargando = false;
+      boton.disabled = false;
+    }
+  }
+
+  boton.addEventListener("click", cargar);
+  cargar();
+}

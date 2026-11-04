@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Integer, Float, Text, DateTime, ForeignKey
+from sqlalchemy import String, Integer, Float, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
@@ -129,3 +129,30 @@ class ObservacionTecnica(Base):
         DateTime,
         default=datetime.now,
     )
+
+class HistorialEstimacion(Base):
+    __tablename__ = "historial_estimaciones"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    orden_id: Mapped[int] = mapped_column(
+        ForeignKey("ordenes.id"),
+        index=True,
+    )
+
+    tecnico_id: Mapped[int] = mapped_column(
+        ForeignKey("tecnicos.id"),
+    )
+
+    fecha: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.now,
+    )
+
+    datos_entrada: Mapped[dict] = mapped_column(JSON)
+
+    tiempo_estimado_dias: Mapped[float] = mapped_column(Float)
+    costo_estimado: Mapped[float] = mapped_column(Float)
+
+    modelo_tiempo_sha256: Mapped[str] = mapped_column(String(64))
+    modelo_costo_sha256: Mapped[str] = mapped_column(String(64))

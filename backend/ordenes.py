@@ -12,6 +12,7 @@ from models import ObservacionTecnica
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from estimador import estimar_servicio
+from models import HistorialEstimacion
 
 from database import obtener_db
 from models import Equipo, HistorialEstado, Orden
@@ -421,18 +422,32 @@ def estimar_orden(
             detail="La orden no tiene un equipo válido asociado.",
         )
 
-    resultado = estimar_servicio(
-        tipo_equipo=equipo.tipo,
-        marca=equipo.marca,
-        categoria_falla=orden.categoria_falla,
-        tecnico=tecnico.nombre,
-        anios_experiencia=tecnico.anios_experiencia,
-        num_repuestos=datos.num_repuestos,
-        prioridad=orden.prioridad,
-    )
+    entrada = {
+        "tipo_equipo": equipo.tipo,
+        "marca": equipo.marca,
+        "categoria_falla": orden.categoria_falla,
+        "tecnico": tecnico.nombre,
+        "anios_experiencia": tecnico.anios_experiencia,
+        "num_repuestos": datos.num_repuestos,
+        "prioridad": orden.prioridad,
+    }
+
+    resultado = estimar_servicio(**entrada)
 
     orden.tiempo_estimado_dias = resultado["tiempo_estimado_dias"]
     orden.costo_estimado = resultado["costo_estimado"]
+
+    registro = HistorialEstimacion(
+        orden_id=orden.id,
+        tecnico_id=tecnico.id,
+        datos_entrada=entrada,
+        tiempo_estimado_dias=resultado["tiempo_estimado_dias"],
+        costo_estimado=resultado["costo_estimado"],
+        modelo_tiempo_sha256=resultado["modelo_tiempo_sha256"],
+        modelo_costo_sha256=resultado["modelo_costo_sha256"],
+    )
+
+    db.add(registro)
 
     db.commit()
     db.refresh(orden)
@@ -690,3 +705,48 @@ def obtener_detalle_orden(
         "observaciones": observaciones,
         "historial": historial,
     }
+
+class HistorialEstimacionRespuesta(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    orden_id: int
+    tecnico_id: int
+    fecha: datetime
+    datos_entrada: dict
+    tiempo_estimado_dias: float
+    costo_estimado: float
+    modelo_tiempo_sha256: str
+    modelo_costo_sha256: str
+
+
+@router.get(
+    "/{orden_id}/estimaciones",
+    response_model=list[HistorialEstimacionRespuesta],
+)
+def consultar_historial_estimaciones(
+    orden_id: int,
+    limite: int = Query(default=20, ge=1, le=100),
+    desplazamiento: int = Query(default=0, ge=0),
+    db: Session = Depends(obtener_db),
+):
+    orden = db.get(Orden, orden_id)
+
+    if orden is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Orden no encontrada.",
+        )
+
+    consulta = (
+        select(HistorialEstimacion)
+        .where(HistorialEstimacion.orden_id == orden_id)
+        .order_by(
+            HistorialEstimacion.fecha.asc(),
+            HistorialEstimacion.id.asc(),
+        )
+        .offset(desplazamiento)
+        .limit(limite)
+    )
+
+    return db.scalars(consulta).all()
